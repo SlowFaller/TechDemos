@@ -1,16 +1,57 @@
-[gd_scene load_steps=4 format=3 uid="uid://cne78ftjxdlsw"]
+[gd_scene load_steps=11 format=3 uid="uid://cne78ftjxdlsw"]
 
-[ext_resource type="Shader" uid="uid://crepr2tvh8dlv" path="res://s_explosion_core.tres" id="1_axjv7"]
-
-[sub_resource type="ShaderMaterial" id="ShaderMaterial_i6ysj"]
-render_priority = 0
-shader = ExtResource("1_axjv7")
-shader_parameter/Cloud_Speed = Vector2(0.16, 0.26)
-shader_parameter/Cloud_Intensity = 0.4
-shader_parameter/Explosion_Amount = 0.0
+[ext_resource type="Material" uid="uid://c3cvfwh7n0c6u" path="res://m_explosive_cloud.tres" id="1_58wk6"]
 
 [sub_resource type="SphereMesh" id="SphereMesh_nsf5w"]
-material = SubResource("ShaderMaterial_i6ysj")
+material = ExtResource("1_58wk6")
 
-[node name="MeshInstance3D" type="MeshInstance3D"]
+[sub_resource type="StandardMaterial3D" id="StandardMaterial3D_dr4jl"]
+albedo_color = Color(0.252028, 0.252028, 0.252028, 1)
+
+[sub_resource type="BoxMesh" id="BoxMesh_egind"]
+material = SubResource("StandardMaterial3D_dr4jl")
+size = Vector3(50, 1, 50)
+
+[sub_resource type="Curve" id="Curve_5rc8f"]
+_data = [Vector2(0, 1), 0.0, 0.0, 0, 0, Vector2(0.691542, 0.270913), 0.0295694, 0.0, 0, 0]
+point_count = 2
+
+[sub_resource type="CurveTexture" id="CurveTexture_21nhn"]
+curve = SubResource("Curve_5rc8f")
+
+[sub_resource type="Curve" id="Curve_kbapv"]
+_data = [Vector2(0, 0.264734), 0.0, 0.0, 0, 0, Vector2(0.497512, 1), 0.0, 0.0, 0, 0]
+point_count = 2
+
+[sub_resource type="CurveTexture" id="CurveTexture_wmv70"]
+curve = SubResource("Curve_kbapv")
+
+[sub_resource type="ParticleProcessMaterial" id="ParticleProcessMaterial_mjtt3"]
+emission_shape = 1
+emission_sphere_radius = 0.22
+radial_velocity_min = 6.49998
+radial_velocity_max = 7.49998
+radial_velocity_curve = SubResource("CurveTexture_21nhn")
+gravity = Vector3(0, 0, 0)
+scale_max = 2.0
+scale_curve = SubResource("CurveTexture_wmv70")
+
+[sub_resource type="SphereMesh" id="SphereMesh_wp8oy"]
+
+[node name="ExplosionRoot" type="Node"]
+
+[node name="ExplosionMesh" type="MeshInstance3D" parent="."]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0, 3.74244)
 mesh = SubResource("SphereMesh_nsf5w")
+
+[node name="Floor" type="MeshInstance3D" parent="."]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, -1, 0)
+mesh = SubResource("BoxMesh_egind")
+
+[node name="GPUParticles3D" type="GPUParticles3D" parent="."]
+material_override = ExtResource("1_58wk6")
+lifetime = 0.57
+explosiveness = 0.8
+fixed_fps = 60
+process_material = SubResource("ParticleProcessMaterial_mjtt3")
+draw_pass_1 = SubResource("SphereMesh_wp8oy")
